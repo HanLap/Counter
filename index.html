@@ -91,8 +91,8 @@
 <script>
   var currentCounters = 0;
 
-  $('document').ready(function () {
-    $('#add-btn').click(function () {
+  $('document').ready(() => {
+    $('#add-btn').click(() => {
       addCounter('new counter', 0);
     })
 
@@ -110,7 +110,7 @@
     storeCounter(currentCounters, html);
 
     var countNr = currentCounters;
-    $(`#input${currentCounters}`).change(function () {
+    $(`#input${currentCounters}`).change(() => {
       console.log(countNr);
       // setCookie(countNr, html);
     storeCounter(countNr, html);
