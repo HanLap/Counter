@@ -3,180 +3,206 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 
-    <style rel="stylesheet">
-        #container {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            align-items: flex-start
-        }
+  <style rel="stylesheet">
+    #container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      align-items: flex-start
+    }
 
-        #add-btn {
-            margin: 10px auto;
-            width: 100px;
-        }
+    #add-btn {
+      margin: 10px auto;
+      width: 100px;
+    }
 
-        #list {
-            display: flex;
-            width: 100%;
-            margin: 0 auto;
-            flex-direction: column;
-            align-content: center;
-            justify-content: center
-        }
+    #list {
+      display: flex;
+      width: 100%;
+      margin: 0 auto;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center
+    }
 
-        #counter-container {
-            margin: auto;
-            flex-grow: 2;
-        }
+    #counter-container {
+      margin: auto;
+      flex-grow: 2;
+    }
 
-        table {
-            width: 100%;
-            align-self: flex-start;
-            vertical-align: center;
-        }
+    table {
+      width: 100%;
+      align-self: flex-start;
+      vertical-align: center;
+    }
 
-        td {
-            min-width: 100px;
-            margin: 0;
-            vertical-align: center;
-        }
+    td {
+      min-width: 100px;
+      margin: 0;
+      vertical-align: center;
+    }
 
-        td[id^="counter"] {
-            text-align: center;
-        }
+    td[id^="counter"] {
+      text-align: center;
+    }
 
-        input {
-            border: none;
-            background: transparent;
-        }
-    </style>
+    input {
+      border: none;
+      background: transparent;
+    }
+  </style>
 </head>
 
 <body>
-    <div id="container">
-        <button id="add-btn" class="btn btn-primary btn-sm">add</button>
+  <div id="container">
+    <button id="add-btn" class="btn btn-primary btn-sm">add</button>
 
-        <div id="counter-container">
-            <table id="list" class="table table-hover">
-                <tr>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-
-
-    <table id="template" style="display:none">
+    <div id="counter-container">
+      <table id="list" class="table table-hover">
         <tr>
-            <td>
-                <input id="input" type="text" value="new counter"></input>
-            </td>
-            <td id="counter">0</td>
-            <td>
-                <button id="inc-btn" class="btn btn-primary btn-sm">+</button>
-                <button id="dec-btn" class="btn btn-danger btn-sm">-</button>
-            </td>
         </tr>
-    </table>
+      </table>
+    </div>
+  </div>
+
+
+
+  <table id="template" style="display:none">
+    <tr>
+      <td>
+        <input id="input" type="text" value="new counter"></input>
+      </td>
+      <td id="counter">0</td>
+      <td>
+        <button id="inc-btn" class="btn btn-primary btn-sm">+</button>
+        <button id="dec-btn" class="btn btn-danger btn-sm">-</button>
+      </td>
+    </tr>
+  </table>
 </body>
 <script>
-    var currentCounters = 0;
+  var currentCounters = 0;
 
-    $('document').ready(function () {
-        $('#add-btn').click(function () {
-            addCounter('new counter', 0);
-        })
-
-        readCookies();
+  $('document').ready(function () {
+    $('#add-btn').click(function () {
+      addCounter('new counter', 0);
     })
 
-    /**
-    * Adds a new counter with the given name and count
-    */
-    function addCounter(name, count) {
-        var html = counterHtml(name, count);
-        $("#list").append(html);
-        setCookie(currentCounters, html);
+    // readCookies();
+    readLocalStorage();
+  })
 
-        var countNr = currentCounters;
-        $(`#input${currentCounters}`).change(function () {
-            console.log(countNr);
-            setCookie(countNr, html);
-        }).keypress(function (e) {
-            if (e.which == 13) {
-                this.blur();
-            }
-        });
+  /**
+  * Adds a new counter with the given name and count
+  */
+  function addCounter(name, count) {
+    var html = counterHtml(name, count);
+    $("#list").append(html);
+    // setCookie(currentCounters, html);
+    storeCounter(currentCounters, html);
 
-        currentCounters++;
+    var countNr = currentCounters;
+    $(`#input${currentCounters}`).change(function () {
+      console.log(countNr);
+      // setCookie(countNr, html);
+    storeCounter(countNr, html);
+    }).keypress(function (e) {
+      if (e.which == 13) {
+        this.blur();
+      }
+    });
+
+    currentCounters++;
+  }
+
+  /**
+  * counts the given counter up, and updates the cookie
+  */
+  function count(n, inc) {
+    var html = $(`#tr${n}`);
+    var count = $(`#counter${n}`);
+    count.text(+count.text() + inc);
+    // setCookie(n, html);
+    storeCounter(n, html);
+  }
+
+  /**
+  * Extracts and prepares the html for a new Counter
+  * @return html for a new timer
+  */
+  function counterHtml(name, count) {
+    var html = $('#template').find('tr').clone();
+
+    html.attr('id', `tr${currentCounters}`)
+
+    html.find('#input').attr('id', `input${currentCounters}`)
+    html.find(`#input${currentCounters}`).val(name);
+
+    html.find('#counter').attr('id', `counter${currentCounters}`)
+    html.find(`#counter${currentCounters}`).text(count)
+
+    html.find('#inc-btn').attr('onclick', `count(${currentCounters}, 1)`)
+    html.find('#dec-btn').attr('onclick', `count(${currentCounters}, -1)`)
+
+    return html;
+  }
+
+  /**
+  * Saves a Cookie with the given counterNumber.
+  * The Value consists of the countername and its actual count seperated by a space.
+  */
+  function setCookie(counterNumber, html) {
+    var count = html.find(`#counter${counterNumber}`).text();
+    var name = html.find('input').val();
+    var cookie = { name: name, count: count };
+    console.log(cookie);
+    Cookies.set(counterNumber, cookie);
+  }
+
+  /**
+  * evaluates the cookies and adds them as counters
+  */
+  function readCookies() {
+    while (true) {
+      var cookie = Cookies.getJSON('' + currentCounters);
+      console.log(cookie);
+
+      if (cookie === undefined) {
+        break;
+      }
+      addCounter(cookie.name, cookie.count);
     }
+  }
 
-    /**
-    * counts the given counter up, and updates the cookie
-    */
-    function count(n, inc) {
-        var html = $(`#tr${n}`);
-        var count = $(`#counter${n}`);
-        count.text(+count.text() + inc);
-        setCookie(n, html);
+
+  function storeCounter(counterNumber, html) {
+    var count = html.find(`#counter${counterNumber}`).text();
+    var name = html.find('input').val();
+    var cookie = { name: name, count: count };
+
+    localStorage['' + counterNumber] = JSON.stringify(cookie);
+  }
+
+  function readLocalStorage() {
+    while (true) {
+      var stored = localStorage['' + currentCounters];
+      if (stored) {
+        counter = JSON.parse(stored);
+        addCounter(counter.name, counter.count);
+      }
+      else {
+        break;
+      }
     }
-
-    /**
-    * Extracts and prepares the html for a new Counter
-    * @return html for a new timer
-    */
-    function counterHtml(name, count) {
-        var html = $('#template').find('tr').clone();
-
-        html.attr('id', `tr${currentCounters}`)
-
-        html.find('#input').attr('id', `input${currentCounters}`)
-        html.find(`#input${currentCounters}`).val(name);
-
-        html.find('#counter').attr('id', `counter${currentCounters}`)
-        html.find(`#counter${currentCounters}`).text(count)
-
-        html.find('#inc-btn').attr('onclick', `count(${currentCounters}, 1)`)
-        html.find('#dec-btn').attr('onclick', `count(${currentCounters}, -1)`)
-
-        return html;
-    }
-
-    /**
-    * Saves a Cookie with the given counterNumber.
-    * The Value consists of the countername and its actual count seperated by a space.
-    */
-    function setCookie(counterNumber, html) {
-        var count = html.find(`#counter${counterNumber}`).text();
-        var name = html.find('input').val();
-        var cookie = { name: name, count: count };
-        console.log(cookie);
-        Cookies.set(counterNumber, cookie);
-    }
-
-    /**
-    * evaluates the cookies and adds them as counters
-    */
-    function readCookies() {
-        while (true) {
-            var cookie = Cookies.getJSON('' + currentCounters);
-            console.log(cookie);
-
-            if (cookie === undefined) {
-                break;
-            }
-            addCounter(cookie.name, cookie.count);
-        }
-    }
+  }
 </script>
 
 </html>
