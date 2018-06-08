@@ -22,7 +22,7 @@ function addCounter(name, count) {
   $(`#input${currentCounters}`).change(() => {
     console.log(countNr);
     // setCookie(countNr, html);
-  storeCounter(countNr, html);
+    storeCounter(countNr, html);
   }).keypress(function (e) {
     if (e.which == 13) {
       this.blur();
@@ -44,22 +44,51 @@ function count(n, inc) {
 }
 
 /**
+ * Deletes the Counter with the given number and restores consistincy of storage keys
+ * @param {int} n number of counter to be deleted 
+ */
+function deleteCounter(n) {
+  console.log(n);
+  $(`#tr${n}`).remove();
+
+  localStorage.removeItem('' + n);
+
+  currentCounters = n
+  while (true) {
+    var stored = localStorage['' + (currentCounters + 1)];
+    if (stored) {
+      localStorage['' + currentCounters] = stored;
+      counter = JSON.parse(stored);
+      
+      localStorage.removeItem('' + (currentCounters + 1));
+      $(`#tr${(currentCounters + 1)}`).remove();
+
+      addCounter(counter.name, counter.count);
+    }
+    else {
+      break;
+    }
+  }
+}
+
+/**
 * Extracts and prepares the html for a new Counter
 * @return html for a new timer
 */
 function counterHtml(name, count) {
   var html = $('#template').find('tr').clone();
 
-  html.attr('id', `tr${currentCounters}`)
+  html.attr('id', `tr${currentCounters}`);
 
-  html.find('#input').attr('id', `input${currentCounters}`)
+  html.find('#input').attr('id', `input${currentCounters}`);
   html.find(`#input${currentCounters}`).val(name);
 
-  html.find('#counter').attr('id', `counter${currentCounters}`)
-  html.find(`#counter${currentCounters}`).text(count)
+  html.find('#counter').attr('id', `counter${currentCounters}`);
+  html.find(`#counter${currentCounters}`).text(count);
 
-  html.find('#inc-btn').attr('onclick', `count(${currentCounters}, 1)`)
-  html.find('#dec-btn').attr('onclick', `count(${currentCounters}, -1)`)
+  html.find('#inc-btn').attr('onclick', `count(${currentCounters}, 1)`);
+  html.find('#dec-btn').attr('onclick', `count(${currentCounters}, -1)`);
+  html.find('#del-btn').attr('onclick', `deleteCounter(${currentCounters})`);
 
   return html;
 }
