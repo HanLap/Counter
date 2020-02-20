@@ -9,4 +9,4 @@ start.bat to start the server.
 the server will run on http://localhost:8080
 
 
-GitHub pages: https://rino767.github.io/Counter/
+GitHub pages: https://HanLap.github.io/Counter/
